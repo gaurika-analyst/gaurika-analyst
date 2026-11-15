@@ -13,17 +13,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate Trophies
-        uses: ryo-ma/github-profile-trophy@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.TROPHY_TOKEN }}
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
         with:
-          username: gaurika-analyst
-          theme: radical
-          no-frame: true
-          no-bg: true
-          column: 7
-          out-path: profile-trophy.svg
+          deno-version: v1.x
+      - name: Generate Trophies SVG
+        env:
+          GITHUB_TOKEN_1: ${{ secrets.TROPHY_TOKEN }}
+        run: |
+          git clone --depth 1 https://github.com/ryo-ma/github-profile-trophy.git /tmp/trophy
+          cd /tmp/trophy
+          deno eval "
+            import { Card } from './src/card.ts';
+            import { getUserInfo } from './src/user_info.ts';
+            import { COLORS } from './src/theme.ts';
+            const userInfo = await getUserInfo('gaurika-analyst');
+            const card = new Card([], {
+              theme: COLORS['radical'],
+              noFrame: true,
+              noBg: true,
+              column: 7,
+              row: 3,
+              marginWidth: 4,
+              marginHeight: 0,
+            });
+            const svg = card.render(userInfo);
+            await Deno.writeTextFile('$GITHUB_WORKSPACE/profile-trophy.svg', svg);
+          "
       - name: Commit Trophy SVG
         run: |
           git config user.name "github-actions[bot]"
