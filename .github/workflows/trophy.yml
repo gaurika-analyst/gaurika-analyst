@@ -15,6 +15,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Generate Trophies
         uses: ryo-ma/github-profile-trophy@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TROPHY_TOKEN }}
         with:
           username: gaurika-analyst
           theme: radical
